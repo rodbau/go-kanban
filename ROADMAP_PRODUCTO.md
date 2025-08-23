@@ -1,5 +1,29 @@
 # 🚀 Roadmap de Producto: Kanban LiveView
 
+## 📅 Roadmap Q3-Q4 2025
+
+### 🗄️ PRIORITY: Migración a PostgreSQL (Q3 2025)
+**Estado**: ⏳ En Planificación
+
+#### Objetivos:
+- **Migrar de JSON a PostgreSQL** para escalabilidad empresarial
+- **Mantener compatibilidad** con JSON para instalaciones simples
+- **Modo Dual**: Permitir elegir entre JSON (simple) o PostgreSQL (producción)
+
+#### Beneficios:
+- ✅ Manejo de miles de usuarios concurrentes
+- ✅ Consultas optimizadas y búsquedas avanzadas
+- ✅ Transacciones ACID para integridad de datos
+- ✅ Backup y recuperación profesional
+- ✅ Preparación para autenticación y permisos
+
+#### Implementación:
+1. **Fase 1**: Crear capa de abstracción de datos
+2. **Fase 2**: Implementar repositorios PostgreSQL
+3. **Fase 3**: Herramienta de migración JSON → PostgreSQL
+4. **Fase 4**: Testing con cargas de producción
+5. **Fase 5**: Documentación y guías de migración
+
 ## 🎉 Actualizaciones Recientes (Agosto 2025)
 
 ### ✅ MEGA UPDATE: Características Core Implementadas
