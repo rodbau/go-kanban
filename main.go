@@ -39,7 +39,8 @@ func main() {
 		Title:  "Simple Kanban Board with JSON Storage", // Browser title
 		Router: e,                                       // Echo router instance
 		AfterCode: `<script src="/assets/kanban.js?v=1755987521"></script>
-					<script src="/assets/upload.js?v=1755987521"></script>`,
+					<script src="/assets/upload.js?v=1755987521"></script>
+					<script src="/kanban-assets/simple-richeditor.js?v=1755987522"></script>`,
 		HeadCode: `<link rel="stylesheet" href="/assets/kanban.css?v=1755987521">`,
 	}
 

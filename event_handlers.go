@@ -70,6 +70,16 @@ func (k *SimpleKanbanModal) EditCard(data interface{}) {
 		}
 	}
 	k.Commit()
+	
+	// Initialize the rich editor after DOM update
+	k.ComponentDriver.EvalScript(fmt.Sprintf(`
+		setTimeout(function() {
+			if (window.initRichEditor) {
+				initRichEditor('%s');
+				setRichEditorContent('%s');
+			}
+		}, 100);
+	`, k.IdComponent, escapeJSString(k.FormCardDesc)))
 }
 
 // AddCard opens the modal dialog for creating a new card
@@ -94,6 +104,16 @@ func (k *SimpleKanbanModal) AddCard(data interface{}) {
 	k.FormCardDueDate = ""
 	k.FormCardChecklist = []ChecklistItem{}
 	k.Commit()
+	
+	// Initialize the rich editor with empty content
+	k.ComponentDriver.EvalScript(fmt.Sprintf(`
+		setTimeout(function() {
+			if (window.initRichEditor) {
+				initRichEditor('%s');
+				clearRichEditor();
+			}
+		}, 100);
+	`, k.IdComponent))
 }
 
 // EditColumn opens the modal for editing a column
@@ -305,6 +325,7 @@ func (k *SimpleKanbanModal) UpdateFormField(data interface{}) {
 		case "card_title":
 			k.FormCardTitle = value.(string)
 		case "card_desc":
+			// Handled by RichEditor OnChange callback
 			k.FormCardDesc = value.(string)
 		case "card_column":
 			k.FormCardColumn = value.(string)

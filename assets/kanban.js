@@ -7,6 +7,16 @@ let openTab = (evt, tabId) => {
 
   document.getElementById(tabId).classList.add("active");
   evt.currentTarget.classList.add("active");
+  
+  // Initialize RichEditor if we're switching to the Description tab
+  if (tabId === 'tab2' && window.initRichEditor) {
+    // Get the component ID from the modal
+    const modal = document.querySelector('.modal-container');
+    if (modal) {
+      const componentId = modal.getAttribute('data-component-id') || 'kanban_board';
+      setTimeout(() => initRichEditor(componentId), 50);
+    }
+  }
 };
 
 function initializeColumnDragDrop() {

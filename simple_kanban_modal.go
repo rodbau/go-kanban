@@ -78,6 +78,9 @@ type SimpleKanbanModal struct {
 
 	// Form field for new board creation
 	FormBoardName string `json:"form_board_name"` // Name for the new board
+	
+	// Internal state
+	richEditorMounted bool `json:"-"` // Track if RichEditor is mounted
 }
 
 // KanbanColumn represents a single column in the Kanban board
@@ -470,17 +473,17 @@ func NewSimpleKanbanModal() *SimpleKanbanModal {
 	}
 	fmt.Printf("📁 FileUpload component created: %v with driver: %v\n", board.FileUpload != nil, board.FileUpload.ComponentDriver != nil)
 
-	// Create RichEditor component for card descriptions
-	board.RichEditor = &components.RichEditor{
-		Placeholder: "Enter card description...",
-		Height:      "200px",
-	}
-	richEditorDriver := liveview.NewDriver[*components.RichEditor]("rich_editor", board.RichEditor)
-	board.RichEditor.ComponentDriver = richEditorDriver
-	board.RichEditor.OnChange = func(content string) {
-		board.FormCardDesc = content
-	}
-	fmt.Printf("📝 RichEditor component created: %v with driver: %v\n", board.RichEditor != nil, board.RichEditor.ComponentDriver != nil)
+	// RichEditor disabled for now - using simple textarea
+	// The mount system has issues with components that need to be rendered in modals
+	// board.RichEditor = &components.RichEditor{
+	//     Placeholder: "Enter card description...",
+	//     Height:      "200px",
+	// }
+	// richEditorDriver := liveview.NewDriver[*components.RichEditor]("rich_editor", board.RichEditor)
+	// board.RichEditor.ComponentDriver = richEditorDriver
+	// board.RichEditor.OnChange = func(content string) {
+	//     board.FormCardDesc = content
+	// }
 
 	// Create Tabs component for modal
 	board.TabsComponent = &components.Tabs{
@@ -586,11 +589,12 @@ func (k *SimpleKanbanModal) Start() {
 		fmt.Println("⚠️ FileUpload component is nil")
 	}
 
-	// Mount the RichEditor component
-	if k.RichEditor != nil {
-		k.Mount(k.RichEditor)
-		fmt.Printf("✅ RichEditor component mounted successfully\n")
-	}
+	// Don't mount RichEditor - we're using a simple textarea for now
+	// The mount system doesn't work well when the mount point doesn't exist
+	// if k.RichEditor != nil {
+	//     k.Mount(k.RichEditor)
+	//     fmt.Printf("✅ RichEditor component mounted successfully\n")
+	// }
 
 	// Mount the Tabs component
 	if k.TabsComponent != nil {
@@ -739,7 +743,7 @@ func (k *SimpleKanbanModal) GetTemplate() string {
 							📅 {{.DueDate.Format "Jan 2, 2006"}}
 						</div>
 						{{end}}
-						<div class="card-desc" style="max-height: 60px; overflow: hidden;">{{.Description}}</div>
+						<div class="card-desc" style="max-height: 60px; overflow: hidden; color: #666; font-size: 13px;">{{$.GetCardDescriptionPreview .Description 100}}</div>
 						<div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
 							{{if .Priority}}<span class="card-priority priority-{{.Priority}}">{{.Priority}}</span>{{end}}
 							{{if .Checklist}}
@@ -860,8 +864,9 @@ func (k *SimpleKanbanModal) GetTemplate() string {
   						<div id="tab2" class="tab-content">
 							<div>
 								<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Description</label>
-								<textarea oninput="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_desc', value: this.value}))"
-										style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; resize: vertical; box-sizing: border-box;">{{.FormCardDesc}}</textarea>
+								<div id="rich-editor-container">
+									<!-- Rich editor will be initialized here by JavaScript -->
+								</div>
 							</div>
 						</div>
 						
