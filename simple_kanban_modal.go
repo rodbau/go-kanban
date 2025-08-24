@@ -19,11 +19,11 @@ const BOARDS_DIR = "kanban_data"
 // Global state for synchronization across multiple connected clients
 // These variables ensure all users see the same board state in real-time
 var (
-	globalMutex     sync.RWMutex                    // Protects read/write access to globalBoards
-	globalBoards    map[string]*KanbanBoardData     // Map of board name to board data
-	activeBoards    []*SimpleKanbanModal            // List of all active board instances
-	activeMutex     sync.Mutex                      // Protects access to activeBoards slice
-	currentBoardName string = "default"             // Currently active board name
+	globalMutex      sync.RWMutex                            // Protects read/write access to globalBoards
+	globalBoards     map[string]*KanbanBoardData             // Map of board name to board data
+	activeBoards     []*SimpleKanbanModal                    // List of all active board instances
+	activeMutex      sync.Mutex                              // Protects access to activeBoards slice
+	currentBoardName string                      = "default" // Currently active board name
 )
 
 // KanbanBoardData represents the persistent board state that is saved to JSON
@@ -37,27 +37,27 @@ type KanbanBoardData struct {
 // It manages board state, handles user interactions, and coordinates real-time updates
 type SimpleKanbanModal struct {
 	*liveview.ComponentDriver[*SimpleKanbanModal] `json:"-"` // Embedded LiveView driver for WebSocket communication
-	
+
 	// Board data - synchronized across all users
 	Columns      []KanbanColumn `json:"columns"`       // Current columns in the board
 	Cards        []KanbanCard   `json:"cards"`         // Current cards across all columns
 	CurrentBoard string         `json:"current_board"` // Name of the currently active board
 	BoardsList   []string       `json:"boards_list"`   // List of available board names
-	
+
 	// UI state
-	ShowAlert    bool   `json:"show_alert"`    // Whether to show instructions alert
-	
+	ShowAlert bool `json:"show_alert"` // Whether to show instructions alert
+
 	// Components
-	Dropdown     *components.Dropdown     `json:"-"` // Dropdown component instance
-	FileUpload   *components.FileUpload   `json:"-"` // File upload component for attachments
-	RichEditor   *components.RichEditor   `json:"-"` // Rich text editor for card descriptions
-	TabsComponent *components.Tabs        `json:"-"` // Tabs component for modal
-	
+	Dropdown      *components.Dropdown   `json:"-"` // Dropdown component instance
+	FileUpload    *components.FileUpload `json:"-"` // File upload component for attachments
+	RichEditor    *components.RichEditor `json:"-"` // Rich text editor for card descriptions
+	TabsComponent *components.Tabs       `json:"-"` // Tabs component for modal
+
 	// Modal state - controls the popup dialog
-	ShowModal     bool   `json:"show_modal"`     // Whether modal is visible
-	ModalType     string `json:"modal_type"`     // Type: "edit_card", "add_card", "edit_column", "add_column", "new_board"
-	ModalTitle    string `json:"modal_title"`    // Title shown in modal header
-	
+	ShowModal  bool   `json:"show_modal"`  // Whether modal is visible
+	ModalType  string `json:"modal_type"`  // Type: "edit_card", "add_card", "edit_column", "add_column", "new_board"
+	ModalTitle string `json:"modal_title"` // Title shown in modal header
+
 	// Form fields for card editing/creation modal
 	FormCardID          string          `json:"form_card_id"`          // ID of card being edited
 	FormCardTitle       string          `json:"form_card_title"`       // Card title input value
@@ -70,12 +70,12 @@ type SimpleKanbanModal struct {
 	FormCardTags        []string        `json:"form_card_tags"`        // Tags/labels
 	FormCardDueDate     string          `json:"form_card_due_date"`    // Due date string (for form input)
 	FormCardChecklist   []ChecklistItem `json:"form_card_checklist"`   // Checklist items
-	
+
 	// Form fields for column editing/creation modal
 	FormColumnID    string `json:"form_column_id"`    // ID of column being edited
 	FormColumnTitle string `json:"form_column_title"` // Column title input value
 	FormColumnColor string `json:"form_column_color"` // Column header color
-	
+
 	// Form field for new board creation
 	FormBoardName string `json:"form_board_name"` // Name for the new board
 }
@@ -92,30 +92,30 @@ type KanbanColumn struct {
 // KanbanCard represents a single task/card in the Kanban board
 // Cards can be moved between columns via drag and drop
 type KanbanCard struct {
-	ID          string       `json:"id"`          // Unique identifier for the card
-	Title       string       `json:"title"`       // Card title (required)
-	Description string       `json:"description"` // Detailed description of the task (HTML from RichEditor)
-	ColumnID    string       `json:"column_id"`   // ID of the column containing this card
-	Priority    string       `json:"priority"`    // Priority level: low, medium, high, urgent
-	Points      int          `json:"points"`      // Story points for effort estimation (0-100)
-	Attachments []Attachment `json:"attachments"` // File attachments
-	Links       []ExternalLink `json:"links"`     // External links
-	Tags        []string     `json:"tags"`        // Tags/labels for categorization
-	DueDate     *time.Time   `json:"due_date"`    // Due date for the task
-	Checklist   []ChecklistItem `json:"checklist"` // Checklist items within the card
-	CreatedAt   time.Time    `json:"created_at"`  // Timestamp when card was created
-	UpdatedAt   time.Time    `json:"updated_at"`  // Timestamp of last modification
+	ID          string          `json:"id"`          // Unique identifier for the card
+	Title       string          `json:"title"`       // Card title (required)
+	Description string          `json:"description"` // Detailed description of the task (HTML from RichEditor)
+	ColumnID    string          `json:"column_id"`   // ID of the column containing this card
+	Priority    string          `json:"priority"`    // Priority level: low, medium, high, urgent
+	Points      int             `json:"points"`      // Story points for effort estimation (0-100)
+	Attachments []Attachment    `json:"attachments"` // File attachments
+	Links       []ExternalLink  `json:"links"`       // External links
+	Tags        []string        `json:"tags"`        // Tags/labels for categorization
+	DueDate     *time.Time      `json:"due_date"`    // Due date for the task
+	Checklist   []ChecklistItem `json:"checklist"`   // Checklist items within the card
+	CreatedAt   time.Time       `json:"created_at"`  // Timestamp when card was created
+	UpdatedAt   time.Time       `json:"updated_at"`  // Timestamp of last modification
 }
 
 // Attachment represents a file attached to a card
 type Attachment struct {
-	ID          string    `json:"id"`          // Unique identifier
-	Name        string    `json:"name"`        // Full file name with ID prefix (for download)
+	ID          string    `json:"id"`           // Unique identifier
+	Name        string    `json:"name"`         // Full file name with ID prefix (for download)
 	DisplayName string    `json:"display_name"` // Original file name for display
-	Size        int64     `json:"size"`        // File size in bytes
-	Type        string    `json:"type"`        // MIME type
-	Path        string    `json:"path"`        // Server file path
-	UploadAt    time.Time `json:"upload_at"`   // Upload timestamp
+	Size        int64     `json:"size"`         // File size in bytes
+	Type        string    `json:"type"`         // MIME type
+	Path        string    `json:"path"`         // Server file path
+	UploadAt    time.Time `json:"upload_at"`    // Upload timestamp
 }
 
 // ExternalLink represents an external URL attached to a card
@@ -160,13 +160,13 @@ func loadBoardData(boardName string) *KanbanBoardData {
 			},
 		}
 	}
-	
+
 	var boardData KanbanBoardData
 	if err := json.Unmarshal(data, &boardData); err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
 		return nil
 	}
-	
+
 	fmt.Println("✅ Loaded board data from JSON file")
 	return &boardData
 }
@@ -176,22 +176,22 @@ func loadBoardData(boardName string) *KanbanBoardData {
 func saveBoardData(boardName string, board *KanbanBoardData) error {
 	globalMutex.Lock()
 	defer globalMutex.Unlock()
-	
+
 	// Ensure boards directory exists
 	if err := os.MkdirAll(BOARDS_DIR, 0755); err != nil {
 		return fmt.Errorf("error creating boards directory: %v", err)
 	}
-	
+
 	filePath := filepath.Join(BOARDS_DIR, boardName+".json")
 	data, err := json.MarshalIndent(board, "", "  ")
 	if err != nil {
 		return fmt.Errorf("error marshaling data: %v", err)
 	}
-	
+
 	if err := os.WriteFile(filePath, data, 0644); err != nil {
 		return fmt.Errorf("error writing file: %v", err)
 	}
-	
+
 	fmt.Printf("💾 Board data saved to %s\n", filePath)
 	return nil
 }
@@ -203,13 +203,13 @@ func getAvailableBoards() []string {
 		fmt.Printf("Error creating boards directory: %v\n", err)
 		return []string{"default"}
 	}
-	
+
 	files, err := os.ReadDir(BOARDS_DIR)
 	if err != nil {
 		fmt.Printf("Error reading boards directory: %v\n", err)
 		return []string{"default"}
 	}
-	
+
 	var boards []string
 	for _, file := range files {
 		if !file.IsDir() && strings.HasSuffix(file.Name(), ".json") {
@@ -217,11 +217,11 @@ func getAvailableBoards() []string {
 			boards = append(boards, boardName)
 		}
 	}
-	
+
 	if len(boards) == 0 {
 		boards = append(boards, "default")
 	}
-	
+
 	return boards
 }
 
@@ -230,7 +230,7 @@ func createNewBoard(boardName string) (*KanbanBoardData, error) {
 	if boardName == "" {
 		return nil, fmt.Errorf("board name cannot be empty")
 	}
-	
+
 	// Create a new board with default columns
 	newBoard := &KanbanBoardData{
 		Columns: []KanbanColumn{
@@ -240,12 +240,12 @@ func createNewBoard(boardName string) (*KanbanBoardData, error) {
 		},
 		Cards: []KanbanCard{},
 	}
-	
+
 	// Save the new board
 	if err := saveBoardData(boardName, newBoard); err != nil {
 		return nil, err
 	}
-	
+
 	return newBoard, nil
 }
 
@@ -255,6 +255,7 @@ func registerBoard(board *SimpleKanbanModal) {
 	activeMutex.Lock()
 	defer activeMutex.Unlock()
 	activeBoards = append(activeBoards, board)
+
 	fmt.Printf("📝 Registered board, total active: %d\n", len(activeBoards))
 }
 
@@ -278,30 +279,30 @@ func unregisterBoard(board *SimpleKanbanModal) {
 func broadcastUpdate() {
 	activeMutex.Lock()
 	defer activeMutex.Unlock()
-	
+
 	globalMutex.RLock()
 	defer globalMutex.RUnlock()
-	
+
 	if globalBoards == nil {
 		return
 	}
-	
+
 	// Create a new slice for active boards that are still connected
 	stillActiveBoards := make([]*SimpleKanbanModal, 0, len(activeBoards))
-	
+
 	fmt.Printf("📡 Broadcasting update to %d active boards\n", len(activeBoards))
-	
+
 	for _, board := range activeBoards {
 		if board == nil || board.ComponentDriver == nil {
 			continue
 		}
-		
+
 		// Track if this board is still active
 		boardIsActive := true
-		
+
 		// Update the boards list first to reflect current state
 		board.BoardsList = getAvailableBoards()
-		
+
 		currentBoard := globalBoards[board.CurrentBoard]
 		if currentBoard == nil {
 			// The current board was deleted/archived, switch to default
@@ -315,20 +316,20 @@ func broadcastUpdate() {
 					globalBoards["default"] = currentBoard
 				}
 			}
-			
+
 			// If still no board, skip this client
 			if currentBoard == nil {
 				stillActiveBoards = append(stillActiveBoards, board)
 				continue
 			}
 		}
-		
+
 		// Update board data from global state
 		board.Columns = make([]KanbanColumn, len(currentBoard.Columns))
 		copy(board.Columns, currentBoard.Columns)
 		board.Cards = make([]KanbanCard, len(currentBoard.Cards))
 		copy(board.Cards, currentBoard.Cards)
-		
+
 		// Update the dropdown component with new boards list
 		if board.Dropdown != nil {
 			// Convert BoardsList to DropdownOptions
@@ -343,7 +344,7 @@ func broadcastUpdate() {
 			board.Dropdown.Selected = board.CurrentBoard
 			board.Dropdown.Commit()
 		}
-		
+
 		// Trigger UI update with panic recovery
 		func() {
 			defer func() {
@@ -353,17 +354,17 @@ func broadcastUpdate() {
 				}
 			}()
 			board.Commit()
-			
+
 			// Re-initialize drag & drop after DOM update
 			board.initializeColumnDragDrop()
 		}()
-		
+
 		// Only keep active boards in the list
 		if boardIsActive {
 			stillActiveBoards = append(stillActiveBoards, board)
 		}
 	}
-	
+
 	// Update the active boards list with only the still-connected ones
 	activeBoards = stillActiveBoards
 	fmt.Printf("✅ Active boards after cleanup: %d\n", len(activeBoards))
@@ -385,14 +386,14 @@ func (k *SimpleKanbanModal) updateGlobalState(columns []KanbanColumn, cards []Ka
 	globalBoards[k.CurrentBoard].Cards = make([]KanbanCard, len(cards))
 	copy(globalBoards[k.CurrentBoard].Cards, cards)
 	globalMutex.Unlock()
-	
+
 	// Save to JSON
 	go func() {
 		if err := saveBoardData(k.CurrentBoard, globalBoards[k.CurrentBoard]); err != nil {
 			fmt.Printf("Error saving board data: %v\n", err)
 		}
 	}()
-	
+
 	// Broadcast to all active boards
 	broadcastUpdate()
 }
@@ -403,21 +404,21 @@ func (k *SimpleKanbanModal) updateGlobalState(columns []KanbanColumn, cards []Ka
 func NewSimpleKanbanModal() *SimpleKanbanModal {
 	board := &SimpleKanbanModal{
 		ShowModal:    false,
-		ShowAlert:    true,  // Show instructions alert initially
+		ShowAlert:    true, // Show instructions alert initially
 		CurrentBoard: "default",
 	}
-	
+
 	board.ComponentDriver = liveview.NewDriver[*SimpleKanbanModal]("kanban_board", board)
-	
+
 	// Get list of available boards
 	board.BoardsList = getAvailableBoards()
-	
+
 	// Initialize global state if this is the first board
 	globalMutex.Lock()
 	if globalBoards == nil {
 		globalBoards = make(map[string]*KanbanBoardData)
 	}
-	
+
 	// Load default board if not loaded
 	if globalBoards[board.CurrentBoard] == nil {
 		boardData := loadBoardData(board.CurrentBoard)
@@ -425,7 +426,7 @@ func NewSimpleKanbanModal() *SimpleKanbanModal {
 			globalBoards[board.CurrentBoard] = boardData
 		}
 	}
-	
+
 	// Load data from global state
 	if globalBoards[board.CurrentBoard] != nil {
 		currentBoard := globalBoards[board.CurrentBoard]
@@ -435,7 +436,7 @@ func NewSimpleKanbanModal() *SimpleKanbanModal {
 		copy(board.Cards, currentBoard.Cards)
 	}
 	globalMutex.Unlock()
-	
+
 	// Create dropdown component for board selection
 	var dropdownOptions []components.DropdownOption
 	for _, boardName := range board.BoardsList {
@@ -447,7 +448,7 @@ func NewSimpleKanbanModal() *SimpleKanbanModal {
 	board.Dropdown = components.NewDropdown(dropdownOptions, "Select Board")
 	board.Dropdown.Selected = board.CurrentBoard
 	board.Dropdown.ComponentDriver = liveview.NewDriver("board_dropdown", board.Dropdown)
-	
+
 	// Create file upload component for attachments
 	board.FileUpload = &components.FileUpload{
 		Multiple: true,
@@ -468,7 +469,7 @@ func NewSimpleKanbanModal() *SimpleKanbanModal {
 		return board.handleFileUpload(filesInterface)
 	}
 	fmt.Printf("📁 FileUpload component created: %v with driver: %v\n", board.FileUpload != nil, board.FileUpload.ComponentDriver != nil)
-	
+
 	// Create RichEditor component for card descriptions
 	board.RichEditor = &components.RichEditor{
 		Placeholder: "Enter card description...",
@@ -480,18 +481,18 @@ func NewSimpleKanbanModal() *SimpleKanbanModal {
 		board.FormCardDesc = content
 	}
 	fmt.Printf("📝 RichEditor component created: %v with driver: %v\n", board.RichEditor != nil, board.RichEditor.ComponentDriver != nil)
-	
+
 	// Create Tabs component for modal
 	board.TabsComponent = &components.Tabs{
-		Tabs: []components.Tab{},
+		Tabs:      []components.Tab{},
 		ActiveTab: "general",
 	}
 	tabsDriver := liveview.NewDriver[*components.Tabs]("modal_tabs", board.TabsComponent)
 	board.TabsComponent.ComponentDriver = tabsDriver
-	
+
 	// Register this board for broadcasting
 	registerBoard(board)
-	
+
 	return board
 }
 
@@ -506,7 +507,7 @@ func (k *SimpleKanbanModal) GetDriver() liveview.LiveDriver {
 // It sets up all the event handlers for user interactions
 func (k *SimpleKanbanModal) Start() {
 	k.SetID("content")
-	
+
 	// Register all event handlers explicitly
 	if k.ComponentDriver != nil {
 		k.ComponentDriver.Events["ReorderColumns"] = func(c *SimpleKanbanModal, data interface{}) {
@@ -571,12 +572,12 @@ func (k *SimpleKanbanModal) Start() {
 			c.RefreshAttachments(data)
 		}
 	}
-	
+
 	// Mount the dropdown component
 	if k.Dropdown != nil {
 		k.Mount(k.Dropdown)
 	}
-	
+
 	// Mount the file upload component
 	if k.FileUpload != nil {
 		k.Mount(k.FileUpload)
@@ -584,113 +585,29 @@ func (k *SimpleKanbanModal) Start() {
 	} else {
 		fmt.Println("⚠️ FileUpload component is nil")
 	}
-	
+
 	// Mount the RichEditor component
 	if k.RichEditor != nil {
 		k.Mount(k.RichEditor)
 		fmt.Printf("✅ RichEditor component mounted successfully\n")
 	}
-	
+
 	// Mount the Tabs component
 	if k.TabsComponent != nil {
 		k.Mount(k.TabsComponent)
 		fmt.Printf("✅ Tabs component mounted successfully\n")
 	}
-	
+
 	k.Commit()
-	
+
 	// Inject the upload and download functions globally
-	uploadScript := `
-	if (typeof window.downloadFile === 'undefined') {
-		window.downloadFile = function(boardID, cardID, filename) {
-			var downloadUrl = '/api/download/' + boardID + '/' + cardID + '/' + filename;
-			
-			// Create a temporary link element and trigger download
-			var link = document.createElement('a');
-			link.href = downloadUrl;
-			link.download = filename;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-		};
-		console.log('[Kanban] Download function injected');
-	}
-	
-	if (typeof window.uploadFiles === 'undefined') {
-		window.uploadFiles = function(files, boardID, cardID) {
-			if (!cardID || cardID === '') {
-				alert('Please save the card first before adding attachments');
-				return;
-			}
-			
-			var formData = new FormData();
-			var validFiles = 0;
-			
-			for (var i = 0; i < files.length; i++) {
-				if (files[i].size > 5 * 1024 * 1024) {
-					alert('File ' + files[i].name + ' is too large (max 5MB)');
-					continue;
-				}
-				formData.append('files', files[i]);
-				validFiles++;
-			}
-			
-			if (validFiles === 0) {
-				return;
-			}
-			
-			// Show progress if element exists
-			var progressEl = document.getElementById('upload-progress');
-			var statusEl = document.getElementById('upload-status');
-			if (progressEl) {
-				progressEl.style.display = 'block';
-				if (statusEl) {
-					statusEl.textContent = 'Uploading ' + validFiles + ' file(s)...';
-				}
-			}
-			
-			// Upload via AJAX
-			fetch('/api/upload/' + boardID + '/' + cardID, {
-				method: 'POST',
-				body: formData
-			})
-			.then(function(response) { 
-				return response.json(); 
-			})
-			.then(function(data) {
-				if (progressEl) {
-					progressEl.style.display = 'none';
-				}
-				if (data.success) {
-					// Notify via WebSocket to refresh attachments
-					if (typeof send_event === 'function') {
-						send_event('kanban_board', 'RefreshAttachments', JSON.stringify({
-							cardID: cardID,
-							files: data.files
-						}));
-					}
-					alert(data.message);
-				} else {
-					alert('Upload failed: ' + (data.error || 'Unknown error'));
-				}
-			})
-			.catch(function(error) {
-				if (progressEl) {
-					progressEl.style.display = 'none';
-				}
-				alert('Upload error: ' + error.message);
-			});
-		};
-		console.log('[Kanban] Upload function injected');
-	}
-	`
-	k.ComponentDriver.EvalScript(uploadScript)
-	
+	k.ComponentDriver.EvalScript("upload()")
+
 	fmt.Println("Simple Kanban Modal Board initialized with explicit event registration")
-	
+
 	// Initialize column drag & drop via EvalScript
 	k.initializeColumnDragDrop()
-	
+
 	// Auto-dismiss alert after 10 seconds
 	if k.ShowAlert {
 		k.EvalScript(`
@@ -709,139 +626,10 @@ func (k *SimpleKanbanModal) initializeColumnDragDrop() {
 	script := `
 	(function() {
 		// Use a small delay to ensure DOM is ready
-		setTimeout(function() {
-			const container = document.getElementById('columns-container');
-			if (!container) {
-				console.log('[DRAG] No columns-container found, retrying...');
-				// Retry after a short delay
-				setTimeout(arguments.callee, 100);
-				return;
-			}
-			
-			// Get component ID from a data attribute
-			const componentId = container.getAttribute('data-component-id') || 'kanban_board';
-			
-			// Use global state to maintain drag information
-			window.__columnDragState = {
-				draggedColumn: null,
-				draggedIndex: -1
-			};
-			
-			console.log('[DRAG] Re-initializing column drag & drop with component ID:', componentId);
-			
-			// Remove all existing event listeners by cloning the container
-			const newContainer = container.cloneNode(true);
-			container.parentNode.replaceChild(newContainer, container);
-			const freshContainer = document.getElementById('columns-container');
-			
-			// Add event listeners to column headers
-			function initColumnDragDrop() {
-				const headers = freshContainer.querySelectorAll('.column-header[draggable="true"]');
-				console.log('[DRAG] Found', headers.length, 'draggable column headers');
-				
-				if (headers.length === 0) {
-					console.log('[DRAG] No headers found yet, retrying...');
-					setTimeout(initColumnDragDrop, 100);
-					return;
-				}
-				
-				headers.forEach((header) => {
-					// Get the parent column element
-					const column = header.parentElement;
-					
-					header.addEventListener('dragstart', function(e) {
-						const columnIndex = parseInt(column.dataset.columnIndex);
-						console.log('[DRAG] Drag started on column', columnIndex);
-						window.__columnDragState.draggedColumn = column;
-						window.__columnDragState.draggedIndex = columnIndex;
-						column.classList.add('dragging');
-						e.dataTransfer.effectAllowed = 'move';
-						e.dataTransfer.setData('text/plain', columnIndex.toString());
-						
-						// Stop propagation to prevent card dragging
-						e.stopPropagation();
-					});
-					
-					header.addEventListener('dragend', function(e) {
-						console.log('[DRAG] Drag ended');
-						if (column) column.classList.remove('dragging');
-						// Remove drag over effects from all columns
-						freshContainer.querySelectorAll('.column').forEach(col => {
-							col.classList.remove('drag-over-column');
-						});
-						// Reset drag state
-						window.__columnDragState.draggedColumn = null;
-						window.__columnDragState.draggedIndex = -1;
-					});
-				});
-				
-				// Add dragover and drop events to all columns (not just headers)
-				const columns = freshContainer.querySelectorAll('.column');
-				columns.forEach((column) => {
-					column.addEventListener('dragover', function(e) {
-						e.preventDefault();
-						e.dataTransfer.dropEffect = 'move';
-						if (this !== window.__columnDragState.draggedColumn) {
-							// Remove from all others first
-							columns.forEach(col => {
-								if (col !== this) col.classList.remove('drag-over-column');
-							});
-							this.classList.add('drag-over-column');
-						}
-					});
-					
-					column.addEventListener('dragleave', function(e) {
-						// Only remove if we're actually leaving the column
-						if (!this.contains(e.relatedTarget)) {
-							this.classList.remove('drag-over-column');
-						}
-					});
-					
-					column.addEventListener('drop', function(e) {
-						e.preventDefault();
-						e.stopPropagation();
-						this.classList.remove('drag-over-column');
-						
-						const draggedColumn = window.__columnDragState.draggedColumn;
-						const draggedIndex = window.__columnDragState.draggedIndex;
-						
-						if (this !== draggedColumn && draggedColumn) {
-							const targetIndex = parseInt(this.dataset.columnIndex);
-							console.log('[DRAG] Dropping column', draggedIndex, 'on', targetIndex);
-							
-							// Send reorder event
-							console.log('[DRAG] Sending reorder event to component:', componentId);
-							if (typeof send_event === 'function') {
-								send_event(componentId, 'ReorderColumns', JSON.stringify({
-									sourceIndex: draggedIndex,
-									targetIndex: targetIndex
-								}));
-								
-								// Important: Re-initialize after a short delay to handle DOM updates
-								console.log('[DRAG] Scheduling re-initialization after reorder...');
-								// Don't call initColumnDragDrop here as it will be called by the server after update
-							} else {
-								console.error('[DRAG] send_event function not found!');
-							}
-						}
-						
-						// Reset drag state
-						window.__columnDragState.draggedColumn = null;
-						window.__columnDragState.draggedIndex = -1;
-					});
-				});
-				
-				console.log('[DRAG] Event listeners attached successfully');
-			}
-			
-			// Initialize with a small delay
-			initColumnDragDrop();
-			
-			console.log('[DRAG] Column drag & drop initialization complete');
-		}, 100);
+		setTimeout(initializeColumnDragDrop, 100);
 	})();
 	`
-	
+
 	// Execute the script to initialize drag & drop
 	k.ComponentDriver.EvalScript(script)
 }
@@ -849,105 +637,7 @@ func (k *SimpleKanbanModal) initializeColumnDragDrop() {
 // GetTemplate returns the template with modals
 func (k *SimpleKanbanModal) GetTemplate() string {
 	return `
-	<style>
-		body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-		.kanban-board { max-width: 1200px; margin: 0 auto; }
-		
-		/* Modal Tabs */
-		.tabs-container {
-			display: flex;
-			border-bottom: 2px solid #ecf0f1;
-			margin-bottom: 20px;
-		}
-		.tab-button {
-			padding: 10px 20px;
-			background: none;
-			border: none;
-			cursor: pointer;
-			color: #7f8c8d;
-			font-size: 14px;
-			font-weight: 500;
-			transition: all 0.3s;
-			border-bottom: 3px solid transparent;
-			margin-bottom: -2px;
-		}
-		.tab-button:hover {
-			color: #34495e;
-		}
-		.tab-button.active {
-			color: #3498db;
-			border-bottom-color: #3498db;
-		}
-		.tab-content {
-			display: none;
-		}
-		.tab-content.active {
-			display: block;
-		}
-		.modal-body {
-			max-height: calc(90vh - 200px);
-			overflow-y: auto;
-			padding-right: 10px;
-		}
-		.modal-footer {
-			background: white;
-			padding-top: 20px;
-			margin-top: 20px;
-			border-top: 1px solid #ecf0f1;
-			display: flex;
-			justify-content: flex-end;
-			gap: 15px;
-		}
-		.modal-container {
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-		}
-		.board-header { text-align: center; color: white; margin-bottom: 20px; }
-		.alert { background: rgba(255,255,255,0.95); color: #2c3e50; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1); animation: slideDown 0.3s ease-out; }
-		@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-		.alert-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #7f8c8d; padding: 0 5px; transition: color 0.2s; }
-		.alert-close:hover { color: #34495e; }
-		.columns-container { display: flex; gap: 20px; overflow-x: auto; padding: 20px 0; }
-		.column { background: rgba(255,255,255,0.95); border-radius: 10px; min-width: 280px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: all 0.3s; }
-		.column.dragging { opacity: 0.5; transform: rotate(5deg); }
-		.column.drag-over-column { transform: scale(1.05); box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3); }
-		.column-header { padding: 15px 20px; border-radius: 10px 10px 0 0; cursor: grab; display: flex; justify-content: space-between; align-items: center; }
-		.column.dragging .column-header { cursor: grabbing; }
-		.column-header:hover { opacity: 0.95; }
-		.column-edit-btn { 
-			background: rgba(255,255,255,0.9); 
-			border: none;
-			border-radius: 4px; 
-			padding: 4px 8px; 
-			cursor: pointer; 
-			font-size: 16px; 
-			opacity: 0; 
-			transition: all 0.2s;
-			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-		}
-		.column-header:hover .column-edit-btn { opacity: 1; }
-		.column-edit-btn:hover { background: white; transform: scale(1.1); }
-		.column-cards { padding: 15px; min-height: 300px; }
-		.kanban-card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.2s; position: relative; }
-		.kanban-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.15); transform: translateY(-2px); background: #f8f9fa; }
-		.kanban-card::after { content: "Click to edit"; position: absolute; top: 5px; right: 5px; font-size: 10px; color: #95a5a6; opacity: 0; transition: opacity 0.2s; }
-		.kanban-card:hover::after { opacity: 1; }
-		.kanban-card[draggable="true"] { cursor: move; }
-		.card-title { font-weight: 600; margin-bottom: 8px; color: #2c3e50; }
-		.card-desc { color: #7f8c8d; font-size: 0.9em; line-height: 1.4; }
-		.card-priority { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; margin-top: 5px; }
-		.card-points-badge { position: absolute; bottom: 12px; right: 12px; background: #3498db; color: white; padding: 5px 12px; border-radius: 16px; font-size: 0.9em; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 1; }
-		.priority-low { background: #d5dbdb; color: #2c3e50; }
-		.priority-medium { background: #f39c12; color: white; }
-		.priority-high { background: #e74c3c; color: white; }
-		.priority-urgent { background: #8e44ad; color: white; }
-		.add-btn { width: 100%; padding: 12px; border: 2px dashed #bdc3c7; background: transparent; border-radius: 5px; cursor: pointer; color: #7f8c8d; transition: all 0.2s; }
-		.add-btn:hover { border-color: #3498db; color: #3498db; background: rgba(52, 152, 219, 0.05); }
-		.add-column-btn { min-width: 250px; display: flex; align-items: center; justify-content: center; }
-		.drag-over { background: rgba(52, 152, 219, 0.1); border-radius: 5px; }
-	</style>
-	
+
 	<div id="kanban_board" class="kanban-board">
 		{{if .ShowAlert}}
 		<div class="alert" id="instructions-alert">
@@ -1088,7 +778,7 @@ func (k *SimpleKanbanModal) GetTemplate() string {
 	
 	{{if .ShowModal}}
 	<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;">
-		<div class="modal-container" style="background: white; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+		<div class="modal-container" style="background: white; border-radius: 15px; width: 90%; max-width: 800px; max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
 			<div style="padding: 20px 30px; border-bottom: 1px solid #ecf0f1; display: flex; justify-content: space-between; align-items: center;">
 				<h2 style="margin: 0; color: #2c3e50;">{{.ModalTitle}}</h2>
 				<button onclick="send_event('{{.IdComponent}}', 'CloseModal', '')" 
@@ -1107,129 +797,146 @@ func (k *SimpleKanbanModal) GetTemplate() string {
 								   style="width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
 						</div>
 						
-						<div>
-							<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Description</label>
-							<textarea oninput="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_desc', value: this.value}))"
-									  style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; resize: vertical; box-sizing: border-box;">{{.FormCardDesc}}</textarea>
+
+
+						<div class="tabs-container">
+							<button class="tab-button active" onclick="openTab(event, 'tab1')"><label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">🏷️ General</label></button>
+							<button class="tab-button" onclick="openTab(event, 'tab2')"><label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">📝 Description</label></button>
+							<button class="tab-button" onclick="openTab(event, 'tab3')"><label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">🔗 External Links</label></button>
+							<button class="tab-button" onclick="openTab(event, 'tab4')"><label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">✅ Checklist</label></button>
+							<button class="tab-button" onclick="openTab(event, 'tab5')"><label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">📎 Attachments</label></button>
 						</div>
-						
-						<!-- Priority, Points, Due Date -->
-						<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-							<div>
-								<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Priority</label>
-								<select onchange="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_priority', value: this.value}))"
+						<div id="tab1" class="tab-content active">
+							<!-- Priority, Points, Due Date -->
+							<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+								<div>
+									<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Priority</label>
+									<select onchange="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_priority', value: this.value}))"
+											style="width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+										<option value="low" {{if eq .FormCardPriority "low"}}selected{{end}}>🟢 Low</option>
+										<option value="medium" {{if eq .FormCardPriority "medium"}}selected{{end}}>🟡 Medium</option>
+										<option value="high" {{if eq .FormCardPriority "high"}}selected{{end}}>🟠 High</option>
+										<option value="urgent" {{if eq .FormCardPriority "urgent"}}selected{{end}}>🔴 Urgent</option>
+									</select>
+								</div>
+								<div>
+									<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Points</label>
+									<input type="number" value="{{.FormCardPoints}}" min="0" max="100"
+										oninput="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_points', value: parseInt(this.value) || 0}))"
 										style="width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-									<option value="low" {{if eq .FormCardPriority "low"}}selected{{end}}>🟢 Low</option>
-									<option value="medium" {{if eq .FormCardPriority "medium"}}selected{{end}}>🟡 Medium</option>
-									<option value="high" {{if eq .FormCardPriority "high"}}selected{{end}}>🟠 High</option>
-									<option value="urgent" {{if eq .FormCardPriority "urgent"}}selected{{end}}>🔴 Urgent</option>
-								</select>
+								</div>
+								<div>
+									<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Due Date</label>
+									<input type="date" value="{{.FormCardDueDate}}" 
+										onchange="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_due_date', value: this.value}))"
+										style="width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+								</div>
 							</div>
+							<br/>
+							<!-- Tags Section -->
 							<div>
-								<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Points</label>
-								<input type="number" value="{{.FormCardPoints}}" min="0" max="100"
-									   oninput="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_points', value: parseInt(this.value) || 0}))"
-									   style="width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+								<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">🏷️ Tags</label>
+								<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; min-height: 32px; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+									{{range .FormCardTags}}
+									<span style="background: #3498db; color: white; padding: 4px 12px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+										{{.}}
+										<button onclick="event.stopPropagation(); send_event('{{$.IdComponent}}', 'RemoveTag', '{{.}}')" 
+												style="background: none; border: none; color: white; cursor: pointer; padding: 0; font-size: 16px; line-height: 1;">×</button>
+									</span>
+									{{end}}
+									{{if not .FormCardTags}}
+									<span style="color: #95a5a6; font-size: 13px;">No tags yet</span>
+									{{end}}
+								</div>
+								<div style="display: flex; gap: 8px;">
+									<input type="text" id="tag-input-{{.IdComponent}}" placeholder="Add a tag..." 
+										style="flex: 1; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
+									<button onclick="var input = document.getElementById('tag-input-{{.IdComponent}}'); if(input.value) { send_event('{{.IdComponent}}', 'AddTag', input.value); input.value = ''; }"
+											style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">Add Tag</button>
+								</div>
 							</div>
+						</div>
+
+  						<div id="tab2" class="tab-content">
 							<div>
-								<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Due Date</label>
-								<input type="date" value="{{.FormCardDueDate}}" 
-									   onchange="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_due_date', value: this.value}))"
-									   style="width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+								<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">Description</label>
+								<textarea oninput="send_event('{{.IdComponent}}', 'UpdateFormField', JSON.stringify({field: 'card_desc', value: this.value}))"
+										style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px; resize: vertical; box-sizing: border-box;">{{.FormCardDesc}}</textarea>
 							</div>
 						</div>
 						
-						<!-- Tags Section -->
-						<div>
-							<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">🏷️ Tags</label>
-							<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; min-height: 32px; padding: 8px; background: #f8f9fa; border-radius: 6px;">
-								{{range .FormCardTags}}
-								<span style="background: #3498db; color: white; padding: 4px 12px; border-radius: 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
-									{{.}}
-									<button onclick="event.stopPropagation(); send_event('{{$.IdComponent}}', 'RemoveTag', '{{.}}')" 
-											style="background: none; border: none; color: white; cursor: pointer; padding: 0; font-size: 16px; line-height: 1;">×</button>
-								</span>
-								{{end}}
-								{{if not .FormCardTags}}
-								<span style="color: #95a5a6; font-size: 13px;">No tags yet</span>
-								{{end}}
-							</div>
-							<div style="display: flex; gap: 8px;">
-								<input type="text" id="tag-input-{{.IdComponent}}" placeholder="Add a tag..." 
-									   style="flex: 1; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
-								<button onclick="var input = document.getElementById('tag-input-{{.IdComponent}}'); if(input.value) { send_event('{{.IdComponent}}', 'AddTag', input.value); input.value = ''; }"
-										style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">Add Tag</button>
-							</div>
-						</div>
+						<div id="tab3" class="tab-content">
 						
-						<!-- External Links Section -->
-						<div>
-							<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">🔗 External Links</label>
-							<div style="min-height: 40px; padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
-								{{if .FormCardLinks}}
-									{{range .FormCardLinks}}
-									<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; background: white; border-radius: 4px; margin-bottom: 6px;">
-										<a href="{{.URL}}" target="_blank" style="color: #3498db; text-decoration: none; flex: 1;">
-											🔗 {{if .Title}}{{.Title}}{{else}}{{.URL}}{{end}}
-										</a>
-										<button onclick="event.stopPropagation(); send_event('{{$.IdComponent}}', 'RemoveLink', '{{.ID}}')" 
-												style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">×</button>
-									</div>
+							<!-- External Links Section -->
+							<div>
+								<div style="min-height: 40px; padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+									{{if .FormCardLinks}}
+										{{range .FormCardLinks}}
+										<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; background: white; border-radius: 4px; margin-bottom: 6px;">
+											<a href="{{.URL}}" target="_blank" style="color: #3498db; text-decoration: none; flex: 1;">
+												🔗 {{if .Title}}{{.Title}}{{else}}{{.URL}}{{end}}
+											</a>
+											<button onclick="event.stopPropagation(); send_event('{{$.IdComponent}}', 'RemoveLink', '{{.ID}}')" 
+													style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">×</button>
+										</div>
+										{{end}}
+									{{else}}
+										<span style="color: #95a5a6; font-size: 13px;">No links yet</span>
 									{{end}}
-								{{else}}
-									<span style="color: #95a5a6; font-size: 13px;">No links yet</span>
-								{{end}}
-							</div>
-							<div style="display: flex; gap: 8px;">
-								<input type="text" id="link-title-{{.IdComponent}}" placeholder="Title (optional)" 
-									   style="width: 30%; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
-								<input type="url" id="link-url-{{.IdComponent}}" placeholder="https://..." 
-									   style="flex: 1; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
-								<button onclick="var title = document.getElementById('link-title-{{.IdComponent}}').value; 
-												var url = document.getElementById('link-url-{{.IdComponent}}').value;
-												if(url) { 
-													send_event('{{.IdComponent}}', 'AddLink', JSON.stringify({title: title || url, url: url})); 
-													document.getElementById('link-title-{{.IdComponent}}').value = '';
-													document.getElementById('link-url-{{.IdComponent}}').value = '';
-												}"
-										style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">Add Link</button>
+								</div>
+								<div style="display: flex; gap: 8px;">
+									<input type="text" id="link-title-{{.IdComponent}}" placeholder="Title (optional)" 
+										style="width: 30%; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
+									<input type="url" id="link-url-{{.IdComponent}}" placeholder="https://..." 
+										style="flex: 1; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
+									<button onclick="var title = document.getElementById('link-title-{{.IdComponent}}').value; 
+													var url = document.getElementById('link-url-{{.IdComponent}}').value;
+													if(url) { 
+														send_event('{{.IdComponent}}', 'AddLink', JSON.stringify({title: title || url, url: url})); 
+														document.getElementById('link-title-{{.IdComponent}}').value = '';
+														document.getElementById('link-url-{{.IdComponent}}').value = '';
+													}"
+											style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">Add Link</button>
+								</div>
 							</div>
 						</div>
 						
-						<!-- Checklist Section -->
-						<div>
-							<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">✅ Checklist</label>
-							<div style="min-height: 40px; padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px; max-height: 200px; overflow-y: auto;">
-								{{if .FormCardChecklist}}
-									{{range .FormCardChecklist}}
-									<div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: white; border-radius: 4px; margin-bottom: 6px;">
-										<input type="checkbox" {{if .Checked}}checked{{end}}
-											   onchange="send_event('{{$.IdComponent}}', 'ToggleChecklistItem', '{{.ID}}')"
-											   style="width: 18px; height: 18px; cursor: pointer;">
-										<span style="flex: 1; {{if .Checked}}text-decoration: line-through; color: #95a5a6;{{end}}">{{.Text}}</span>
-										<button onclick="event.stopPropagation(); send_event('{{$.IdComponent}}', 'RemoveChecklistItem', '{{.ID}}')" 
-												style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">×</button>
-									</div>
+
+						<div id="tab4" class="tab-content">
+							<!-- Checklist Section -->
+							<div>
+								<div style="min-height: 40px; padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px; max-height: 200px; overflow-y: auto;">
+									{{if .FormCardChecklist}}
+										{{range .FormCardChecklist}}
+										<div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: white; border-radius: 4px; margin-bottom: 6px;">
+											<input type="checkbox" {{if .Checked}}checked{{end}}
+												onchange="send_event('{{$.IdComponent}}', 'ToggleChecklistItem', '{{.ID}}')"
+												style="width: 18px; height: 18px; cursor: pointer;">
+											<span style="flex: 1; {{if .Checked}}text-decoration: line-through; color: #95a5a6;{{end}}">{{.Text}}</span>
+											<button onclick="event.stopPropagation(); send_event('{{$.IdComponent}}', 'RemoveChecklistItem', '{{.ID}}')" 
+													style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">×</button>
+										</div>
+										{{end}}
+									{{else}}
+										<span style="color: #95a5a6; font-size: 13px;">No checklist items yet</span>
 									{{end}}
-								{{else}}
-									<span style="color: #95a5a6; font-size: 13px;">No checklist items yet</span>
-								{{end}}
-							</div>
-							<div style="display: flex; gap: 8px;">
-								<input type="text" id="checklist-input-{{.IdComponent}}" placeholder="Add checklist item..." 
-									   style="flex: 1; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
-								<button onclick="var input = document.getElementById('checklist-input-{{.IdComponent}}'); 
-												if(input.value) { 
-													send_event('{{.IdComponent}}', 'AddChecklistItem', input.value); 
-													input.value = ''; 
-												}"
-										style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">Add Item</button>
+								</div>
+								<div style="display: flex; gap: 8px;">
+									<input type="text" id="checklist-input-{{.IdComponent}}" placeholder="Add checklist item..." 
+										style="flex: 1; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 14px;">
+									<button onclick="var input = document.getElementById('checklist-input-{{.IdComponent}}'); 
+													if(input.value) { 
+														send_event('{{.IdComponent}}', 'AddChecklistItem', input.value); 
+														input.value = ''; 
+													}"
+											style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">Add Item</button>
+								</div>
 							</div>
 						</div>
+						
 						
 						<!-- File Attachments Section -->
-						<div>
-							<label style="display: block; margin-bottom: 8px; font-weight: 500; color: #34495e;">📎 File Attachments</label>
+						<div id="tab5" class="tab-content">
 							<div style="min-height: 40px; padding: 12px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
 								{{if .FormCardAttachments}}
 									<div style="display: flex; flex-direction: column; gap: 8px;">
@@ -1362,4 +1069,3 @@ func (k *SimpleKanbanModal) GetTemplate() string {
 func (k *SimpleKanbanModal) GetModalContent() string {
 	return ""
 }
-

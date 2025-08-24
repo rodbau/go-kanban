@@ -33,25 +33,10 @@
       "column_id": "todo",
       "priority": "medium",
       "points": 2,
-      "attachments": null,
-      "links": null,
-      "tags": null,
-      "due_date": null,
-      "checklist": null,
-      "created_at": "0001-01-01T00:00:00Z",
-      "updated_at": "2025-08-23T02:27:31.130257-03:00"
-    },
-    {
-      "id": "card_1755899787202419000",
-      "title": "ddd",
-      "description": "eweww",
-      "column_id": "done",
-      "priority": "medium",
-      "points": 1,
       "attachments": [
         {
-          "id": "attach_1755928184842129000",
-          "name": "attach_1755928184842129000_thandercats.png",
+          "id": "attach_1755996778360303000",
+          "name": "attach_1755996778360303000_thandercats.png",
           "display_name": "thandercats.png",
           "size": 1575218,
           "type": "",
@@ -62,20 +47,24 @@
       "links": null,
       "tags": null,
       "due_date": null,
-      "checklist": [
-        {
-          "id": "check_1755928200625820000",
-          "text": "hola",
-          "checked": true
-        },
-        {
-          "id": "check_1755928205241596000",
-          "text": "pedro",
-          "checked": true
-        }
-      ],
+      "checklist": null,
       "created_at": "0001-01-01T00:00:00Z",
-      "updated_at": "2025-08-23T02:50:11.957183-03:00"
+      "updated_at": "2025-08-23T21:53:02.75668-03:00"
+    },
+    {
+      "id": "card_1755899787202419000",
+      "title": "ddd",
+      "description": "eweww",
+      "column_id": "col_1755899805483277000",
+      "priority": "medium",
+      "points": 1,
+      "attachments": null,
+      "links": null,
+      "tags": null,
+      "due_date": null,
+      "checklist": null,
+      "created_at": "0001-01-01T00:00:00Z",
+      "updated_at": "2025-08-23T22:34:41.569819-03:00"
     },
     {
       "id": "card_1755903819706348000",
@@ -90,7 +79,7 @@
       "due_date": null,
       "checklist": null,
       "created_at": "2025-08-22T20:03:39.706365-03:00",
-      "updated_at": "2025-08-22T23:31:44.746411-03:00"
+      "updated_at": "2025-08-23T22:34:55.701832-03:00"
     },
     {
       "id": "card_1755903822887533000",
@@ -138,13 +127,13 @@
         }
       ],
       "created_at": "2025-08-22T20:03:42.887581-03:00",
-      "updated_at": "2025-08-23T02:37:33.230583-03:00"
+      "updated_at": "2025-08-23T21:56:50.405882-03:00"
     },
     {
       "id": "card_1755905833737037000",
       "title": "jk",
       "description": "lkklñ",
-      "column_id": "todo",
+      "column_id": "doing",
       "priority": "medium",
       "points": 7,
       "attachments": [
@@ -163,13 +152,13 @@
       "due_date": "2025-08-16T00:00:00Z",
       "checklist": null,
       "created_at": "2025-08-22T20:37:13.737052-03:00",
-      "updated_at": "2025-08-23T02:36:52.430406-03:00"
+      "updated_at": "2025-08-23T22:46:31.256001-03:00"
     },
     {
       "id": "card_1755908111951405000",
       "title": "ss",
       "description": "sss",
-      "column_id": "doing",
+      "column_id": "col_1755899805483277000",
       "priority": "medium",
       "points": 4,
       "attachments": null,
@@ -178,7 +167,7 @@
       "due_date": null,
       "checklist": null,
       "created_at": "2025-08-22T21:15:11.951484-03:00",
-      "updated_at": "2025-08-22T23:50:43.126129-03:00"
+      "updated_at": "2025-08-23T22:33:22.551161-03:00"
     }
   ]
 }

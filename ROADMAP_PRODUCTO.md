@@ -26,6 +26,22 @@
 
 ## 🎉 Actualizaciones Recientes (Agosto 2025)
 
+### ✅ ÚLTIMA ACTUALIZACIÓN: Arquitectura Híbrida JavaScript Persistente
+
+#### 🏗️ Solución Técnica Implementada
+- **Problema resuelto**: Los scripts JavaScript se perdían con las actualizaciones WebSocket de LiveView
+- **Solución**: Usar `AfterCode` y `HeadCode` en PageControl para inyectar JS/CSS persistente
+- **Beneficios**: 
+  - Mantiene la arquitectura LiveView (server-side rendering)
+  - Permite JavaScript rico para interacciones complejas (drag-drop, uploads)
+  - Los scripts persisten entre actualizaciones WebSocket
+  - Mejor UX sin sacrificar la simplicidad del backend
+
+#### Archivos JavaScript Implementados:
+- **`assets/kanban.js`**: Manejo de tabs y drag-drop de columnas
+- **`assets/upload.js`**: Sistema de carga/descarga de archivos vía REST API
+- **`assets/kanban.css`**: Estilos con animaciones y efectos visuales
+
 ### ✅ MEGA UPDATE: Características Core Implementadas
 
 #### 🏷️ CORE-001: Etiquetas/Tags - COMPLETADO
@@ -102,14 +118,16 @@ Esta implementación cierra una brecha importante con Trello y mejora significat
 
 | Característica | Nuestro Kanban | Trello | Brecha |
 |----------------|----------------|--------|--------|
-| Gestión de Boards | ✅ Básico | ✅ Avanzado | 🔴 Alta |
+| Gestión de Boards | ✅ Multi-board | ✅ Avanzado | 🟡 Media |
 | Colaboración Tiempo Real | ✅ Excelente | ✅ Bueno | 🟢 Ventaja |
+| Drag & Drop Columnas | ✅ Implementado | ✅ Completo | 🟢 Paridad |
 | Persistencia | ⚠️ JSON Local | ✅ Cloud DB | 🔴 Crítica |
 | Autenticación | ❌ No tiene | ✅ Completo | 🔴 Crítica |
 | Mobile | ❌ No responsive | ✅ Apps nativas | 🔴 Alta |
 | Integraciones | ❌ Ninguna | ✅ 200+ apps | 🔴 Alta |
 | Búsqueda | ❌ No tiene | ✅ Avanzada | 🟡 Media |
 | Adjuntos | ✅ Implementado | ✅ Completo | 🟢 Completado |
+| JavaScript Pesado | ✅ Mínimo | ❌ Pesado | 🟢 Ventaja |
 
 ---
 
@@ -342,15 +360,16 @@ Con la implementación exitosa del **sistema de archivos adjuntos**, hemos demos
 
 ### 💪 Fortalezas Demostradas
 1. **Capacidad técnica probada**: Sistema de attachments funcionando sin bibliotecas externas
-2. **Arquitectura escalable**: Separación clara entre comunicación en tiempo real y transferencia de datos
-3. **UX competitiva**: Drag & drop intuitivo comparable a soluciones comerciales
+2. **Arquitectura híbrida innovadora**: LiveView + JavaScript persistente = lo mejor de ambos mundos
+3. **UX competitiva**: Drag & drop de columnas y archivos comparable a soluciones comerciales
 4. **Persistencia funcional**: JSON local es suficiente para MVP
+5. **Performance superior**: JavaScript mínimo = carga más rápida que competidores
 
 
 ### 🚦 Estado del Proyecto
-- **Madurez técnica**: 65% (core avanzado, tags, fechas, checklists, attachments, rich editor - falta auth y DB)
-- **Preparación para mercado**: 45% (features competitivas implementadas, necesita auth, responsive, comentarios)
-- **Riesgo**: Bajo-Moderado (tecnología probada, mercado validado)
-- **ROI esperado**: Alto (inversión principalmente tiempo)
+- **Madurez técnica**: 70% (core avanzado, tags, fechas, checklists, attachments, rich editor, drag-drop columnas, arquitectura híbrida - falta auth y DB)
+- **Preparación para mercado**: 50% (features competitivas implementadas, UX pulida con JavaScript mínimo, necesita auth, responsive, comentarios)
+- **Riesgo**: Bajo (tecnología probada, arquitectura híbrida única, mercado validado)
+- **ROI esperado**: Alto (inversión principalmente tiempo, diferenciación clara con JS mínimo)
 
 **Recomendación final**: Con el momentum actual y las capacidades demostradas, este es el momento ideal para acelerar el desarrollo hacia un MVP comercial. ¡Adelante! 🚀

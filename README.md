@@ -27,7 +27,7 @@ This isn't just another todo app - it's a production-ready project management to
 ### ✨ Features That Make Us Special
 
 - 🔄 **Real-time Magic**: See changes instantly across all browsers (WebSocket powered!)
-- 🎯 **Zero JavaScript**: Yes, you read that right - full interactivity with server-side rendering
+- 🎯 **Hybrid Architecture**: Server-side rendering enhanced with persistent JavaScript for rich interactions
 - 📎 **File Attachments**: Drag & drop files directly to cards
 - 🏷️ **Smart Tags**: Organize with colorful labels
 - ✅ **Checklists**: Track subtasks with progress indicators
@@ -36,6 +36,7 @@ This isn't just another todo app - it's a production-ready project management to
 - 🎨 **Rich Text Editor**: Format descriptions beautifully
 - 🔗 **External Links**: Connect cards to external resources
 - 📱 **Multi-board Support**: Manage multiple projects seamlessly
+- 🖱️ **Column Drag & Drop**: Reorder columns with smooth animations
 
 ### 🚀 Quick Start (< 1 minute!)
 
@@ -56,8 +57,9 @@ That's it! No npm, no webpack, no 500MB node_modules! 🎉
 ### 🛠️ Tech Stack
 
 - **Backend**: Go + Echo framework (lightning fast!)
-- **Real-time**: go-echo-live-view (our secret sauce)
-- **Frontend**: Pure HTML/CSS with server-side rendering
+- **Real-time**: go-echo-live-view (WebSocket-based updates)
+- **Frontend**: Hybrid approach - Server-side rendering with persistent JavaScript for enhanced UX
+- **Client Features**: Tab navigation, column drag-drop, file upload/download via REST API
 - **Storage**: JSON files (PostgreSQL coming Q3 2025!)
 
 ### 🗓️ Roadmap 2025
@@ -90,9 +92,11 @@ This project started as a simple example and grew into something amazing. Now we
 | Price | FREE Forever | $5+/user/month | $7.75+/user/month |
 | Self-hosted | ✅ | ❌ | ⚠️ (expensive) |
 | Real-time | ✅ | ✅ | ✅ |
-| No JavaScript | ✅ | ❌ | ❌ |
+| Minimal JavaScript | ✅ Enhanced UX only | ❌ Heavy | ❌ Heavy |
 | Open Source | ✅ | ❌ | ❌ |
 | Your Data = Yours | ✅ | ❌ | ❌ |
+| Column Drag & Drop | ✅ | ✅ | ✅ |
+| File Attachments | ✅ | ✅ | ✅ |
 
 ---
 
@@ -107,7 +111,7 @@ No es solo otra app de tareas - es una herramienta de gestión de proyectos list
 ### ✨ Características que Nos Hacen Especiales
 
 - 🔄 **Magia en Tiempo Real**: Ve cambios instantáneos en todos los navegadores (¡WebSocket!)
-- 🎯 **Cero JavaScript**: Sí, leíste bien - interactividad completa con renderizado del servidor
+- 🎯 **Arquitectura Híbrida**: Renderizado del servidor mejorado con JavaScript persistente para interacciones ricas
 - 📎 **Archivos Adjuntos**: Arrastra y suelta archivos directamente
 - 🏷️ **Etiquetas Inteligentes**: Organiza con etiquetas coloridas
 - ✅ **Listas de Verificación**: Rastrea subtareas con indicadores de progreso
@@ -116,6 +120,7 @@ No es solo otra app de tareas - es una herramienta de gestión de proyectos list
 - 🎨 **Editor de Texto Rico**: Formatea descripciones hermosamente
 - 🔗 **Enlaces Externos**: Conecta tarjetas a recursos externos
 - 📱 **Soporte Multi-tablero**: Gestiona múltiples proyectos sin problemas
+- 🖱️ **Arrastrar y Soltar Columnas**: Reordena columnas con animaciones suaves
 
 ### 🚀 Inicio Rápido (< 1 minuto!)
 
@@ -136,8 +141,9 @@ go run .
 ### 🛠️ Stack Tecnológico
 
 - **Backend**: Go + framework Echo (¡súper rápido!)
-- **Tiempo Real**: go-echo-live-view (nuestra salsa secreta)
-- **Frontend**: HTML/CSS puro con renderizado del servidor
+- **Tiempo Real**: go-echo-live-view (actualizaciones basadas en WebSocket)
+- **Frontend**: Enfoque híbrido - Renderizado del servidor con JavaScript persistente para UX mejorada
+- **Características Cliente**: Navegación por tabs, drag-drop de columnas, upload/download de archivos vía API REST
 - **Almacenamiento**: Archivos JSON (¡PostgreSQL viene en Q3 2025!)
 
 ### 🗓️ Hoja de Ruta 2025
@@ -170,9 +176,11 @@ Este proyecto empezó como un simple ejemplo y creció hasta ser algo increíble
 | Precio | GRATIS Para Siempre | $5+/usuario/mes | $7.75+/usuario/mes |
 | Auto-hospedado | ✅ | ❌ | ⚠️ (caro) |
 | Tiempo Real | ✅ | ✅ | ✅ |
-| Sin JavaScript | ✅ | ❌ | ❌ |
+| JavaScript Mínimo | ✅ Solo para UX mejorada | ❌ Pesado | ❌ Pesado |
 | Código Abierto | ✅ | ❌ | ❌ |
 | Tus Datos = Tuyos | ✅ | ❌ | ❌ |
+| Arrastrar Columnas | ✅ | ✅ | ✅ |
+| Archivos Adjuntos | ✅ | ✅ | ✅ |
 
 ---
 

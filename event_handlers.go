@@ -14,13 +14,13 @@ func (k *SimpleKanbanModal) MoveCard(data interface{}) {
 	var event map[string]interface{}
 	if jsonData, ok := data.(string); ok {
 		json.Unmarshal([]byte(jsonData), &event)
-		
+
 		cardID := event["cardId"].(string)
 		columnID := event["columnId"].(string)
-		
+
 		updatedCards := make([]KanbanCard, len(k.Cards))
 		copy(updatedCards, k.Cards)
-		
+
 		for i := range updatedCards {
 			if updatedCards[i].ID == cardID {
 				if updatedCards[i].ColumnID != columnID {
@@ -31,7 +31,7 @@ func (k *SimpleKanbanModal) MoveCard(data interface{}) {
 				break
 			}
 		}
-		
+
 		k.updateGlobalState(k.Columns, updatedCards)
 	}
 }
@@ -42,7 +42,7 @@ func (k *SimpleKanbanModal) EditCard(data interface{}) {
 	if id, ok := data.(string); ok {
 		cardID = id
 	}
-	
+
 	for _, card := range k.Cards {
 		if card.ID == cardID {
 			k.ShowModal = true
@@ -78,7 +78,7 @@ func (k *SimpleKanbanModal) AddCard(data interface{}) {
 	if id, ok := data.(string); ok {
 		columnID = id
 	}
-	
+
 	k.ShowModal = true
 	k.ModalType = "add_card"
 	k.ModalTitle = "Add New Card"
@@ -102,7 +102,7 @@ func (k *SimpleKanbanModal) EditColumn(data interface{}) {
 	if id, ok := data.(string); ok {
 		columnID = id
 	}
-	
+
 	for _, col := range k.Columns {
 		if col.ID == columnID {
 			k.ShowModal = true
@@ -132,12 +132,13 @@ func (k *SimpleKanbanModal) AddColumn(data interface{}) {
 func (k *SimpleKanbanModal) CloseModal(data interface{}) {
 	k.ShowModal = false
 	k.Commit()
+	k.initializeColumnDragDrop()
 }
 
 // SaveModal saves the modal form data
 func (k *SimpleKanbanModal) SaveModal(data interface{}) {
 	wasAddCard := k.ModalType == "add_card"
-	
+
 	if k.ModalType == "edit_card" || k.ModalType == "add_card" {
 		k.saveCard()
 	} else if k.ModalType == "edit_column" || k.ModalType == "add_column" {
@@ -153,15 +154,15 @@ func (k *SimpleKanbanModal) SaveModal(data interface{}) {
 				}
 				globalBoards[k.FormBoardName] = newBoard
 				globalMutex.Unlock()
-				
+
 				k.BoardsList = getAvailableBoards()
 				k.CurrentBoard = k.FormBoardName
 				k.Columns = newBoard.Columns
 				k.Cards = newBoard.Cards
 				k.ShowModal = false
-				
+
 				fmt.Printf("✅ Created new board: %s\n", k.FormBoardName)
-				
+
 				// Broadcast the new board to all connected clients
 				broadcastUpdate()
 			} else {
@@ -169,12 +170,12 @@ func (k *SimpleKanbanModal) SaveModal(data interface{}) {
 			}
 		}
 	}
-	
+
 	// Don't close modal if it was a new card (to allow file uploads)
 	if !wasAddCard && k.ModalType != "new_board" {
 		k.ShowModal = false
 	}
-	
+
 	k.updateGlobalState(k.Columns, k.Cards)
 	k.Commit()
 }
@@ -196,13 +197,13 @@ func (k *SimpleKanbanModal) saveCard() {
 			Tags:        k.FormCardTags,
 			Checklist:   k.FormCardChecklist,
 		}
-		
+
 		if k.FormCardDueDate != "" {
 			if dueDate, err := time.Parse("2006-01-02", k.FormCardDueDate); err == nil {
 				newCard.DueDate = &dueDate
 			}
 		}
-		
+
 		k.Cards = append(k.Cards, newCard)
 		// Update FormCardID so attachments can be uploaded
 		k.FormCardID = newCardID
@@ -220,7 +221,7 @@ func (k *SimpleKanbanModal) saveCard() {
 				k.Cards[i].Links = k.FormCardLinks
 				k.Cards[i].Tags = k.FormCardTags
 				k.Cards[i].Checklist = k.FormCardChecklist
-				
+
 				if k.FormCardDueDate != "" {
 					if dueDate, err := time.Parse("2006-01-02", k.FormCardDueDate); err == nil {
 						k.Cards[i].DueDate = &dueDate
@@ -276,14 +277,14 @@ func (k *SimpleKanbanModal) DeleteColumn(data interface{}) {
 			updatedColumns = append(updatedColumns, col)
 		}
 	}
-	
+
 	updatedCards := []KanbanCard{}
 	for _, card := range k.Cards {
 		if card.ColumnID != k.FormColumnID {
 			updatedCards = append(updatedCards, card)
 		}
 	}
-	
+
 	k.Columns = updatedColumns
 	k.Cards = updatedCards
 	k.ShowModal = false
@@ -296,10 +297,10 @@ func (k *SimpleKanbanModal) UpdateFormField(data interface{}) {
 	var field map[string]interface{}
 	if jsonData, ok := data.(string); ok {
 		json.Unmarshal([]byte(jsonData), &field)
-		
+
 		fieldName := field["field"].(string)
 		value := field["value"]
-		
+
 		switch fieldName {
 		case "card_title":
 			k.FormCardTitle = value.(string)
@@ -329,7 +330,7 @@ func (k *SimpleKanbanModal) AddTag(data interface{}) {
 	if t, ok := data.(string); ok {
 		tag = strings.TrimSpace(t)
 	}
-	
+
 	if tag != "" {
 		// Check if tag already exists
 		for _, existingTag := range k.FormCardTags {
@@ -347,7 +348,7 @@ func (k *SimpleKanbanModal) RemoveTag(data interface{}) {
 	if t, ok := data.(string); ok {
 		tag = t
 	}
-	
+
 	newTags := []string{}
 	for _, t := range k.FormCardTags {
 		if t != tag {
@@ -363,13 +364,13 @@ func (k *SimpleKanbanModal) AddLink(data interface{}) {
 	var linkData map[string]interface{}
 	if jsonData, ok := data.(string); ok {
 		json.Unmarshal([]byte(jsonData), &linkData)
-		
+
 		newLink := ExternalLink{
 			ID:    fmt.Sprintf("link_%d", time.Now().UnixNano()),
 			Title: linkData["title"].(string),
 			URL:   linkData["url"].(string),
 		}
-		
+
 		k.FormCardLinks = append(k.FormCardLinks, newLink)
 		k.Commit()
 	}
@@ -380,7 +381,7 @@ func (k *SimpleKanbanModal) RemoveLink(data interface{}) {
 	if id, ok := data.(string); ok {
 		linkID = id
 	}
-	
+
 	newLinks := []ExternalLink{}
 	for _, link := range k.FormCardLinks {
 		if link.ID != linkID {
@@ -397,7 +398,7 @@ func (k *SimpleKanbanModal) AddChecklistItem(data interface{}) {
 	if t, ok := data.(string); ok {
 		text = strings.TrimSpace(t)
 	}
-	
+
 	if text != "" {
 		newItem := ChecklistItem{
 			ID:      fmt.Sprintf("check_%d", time.Now().UnixNano()),
@@ -414,7 +415,7 @@ func (k *SimpleKanbanModal) RemoveChecklistItem(data interface{}) {
 	if id, ok := data.(string); ok {
 		itemID = id
 	}
-	
+
 	newChecklist := []ChecklistItem{}
 	for _, item := range k.FormCardChecklist {
 		if item.ID != itemID {
@@ -430,7 +431,7 @@ func (k *SimpleKanbanModal) ToggleChecklistItem(data interface{}) {
 	if id, ok := data.(string); ok {
 		itemID = id
 	}
-	
+
 	for i := range k.FormCardChecklist {
 		if k.FormCardChecklist[i].ID == itemID {
 			k.FormCardChecklist[i].Checked = !k.FormCardChecklist[i].Checked
@@ -451,22 +452,22 @@ func (k *SimpleKanbanModal) SwitchBoard(data interface{}) {
 	if name, ok := data.(string); ok {
 		boardName = name
 	}
-	
+
 	if boardName != "" && boardName != k.CurrentBoard {
 		k.CurrentBoard = boardName
-		
+
 		globalMutex.Lock()
 		if globalBoards == nil {
 			globalBoards = make(map[string]*KanbanBoardData)
 		}
-		
+
 		if globalBoards[boardName] == nil {
 			boardData := loadBoardData(boardName)
 			if boardData != nil {
 				globalBoards[boardName] = boardData
 			}
 		}
-		
+
 		if globalBoards[boardName] != nil {
 			currentBoard := globalBoards[boardName]
 			k.Columns = make([]KanbanColumn, len(currentBoard.Columns))
@@ -475,7 +476,7 @@ func (k *SimpleKanbanModal) SwitchBoard(data interface{}) {
 			copy(k.Cards, currentBoard.Cards)
 		}
 		globalMutex.Unlock()
-		
+
 		k.Commit()
 	}
 }
@@ -495,7 +496,7 @@ func (k *SimpleKanbanModal) CreateBoard(data interface{}) {
 			globalMutex.Lock()
 			globalBoards[k.FormBoardName] = newBoard
 			globalMutex.Unlock()
-			
+
 			k.BoardsList = getAvailableBoards()
 			k.CurrentBoard = k.FormBoardName
 			k.Columns = newBoard.Columns
@@ -516,40 +517,40 @@ func (k *SimpleKanbanModal) ArchiveBoard(data interface{}) {
 	if name, ok := data.(string); ok {
 		boardToArchive = name
 	}
-	
+
 	// Don't archive the default board
 	if boardToArchive == "" || boardToArchive == "default" {
 		fmt.Println("⚠️ Cannot archive default board or empty board name")
 		return
 	}
-	
+
 	fmt.Printf("📦 Archiving board: %s\n", boardToArchive)
-	
+
 	// Create archived directory if it doesn't exist
 	archivedDir := filepath.Join(BOARDS_DIR, "archived")
 	if err := os.MkdirAll(archivedDir, 0755); err != nil {
 		fmt.Printf("❌ Error creating archived directory: %v\n", err)
 		return
 	}
-	
+
 	// Generate timestamp for archived filename
 	timestamp := time.Now().Format("20060102_150405")
 	sourcePath := filepath.Join(BOARDS_DIR, boardToArchive+".json")
 	destPath := filepath.Join(archivedDir, fmt.Sprintf("%s_%s.json", boardToArchive, timestamp))
-	
+
 	// Read the source file
 	fileData, err := os.ReadFile(sourcePath)
 	if err != nil {
 		fmt.Printf("❌ Error reading board file: %v\n", err)
 		return
 	}
-	
+
 	// Write to archived location
 	if err := os.WriteFile(destPath, fileData, 0644); err != nil {
 		fmt.Printf("❌ Error writing archived file: %v\n", err)
 		return
 	}
-	
+
 	// Remove the original file
 	if err := os.Remove(sourcePath); err != nil {
 		fmt.Printf("❌ Error removing original file: %v\n", err)
@@ -557,15 +558,15 @@ func (k *SimpleKanbanModal) ArchiveBoard(data interface{}) {
 		os.Remove(destPath)
 		return
 	}
-	
+
 	// Remove from global boards
 	globalMutex.Lock()
 	delete(globalBoards, boardToArchive)
 	globalMutex.Unlock()
-	
+
 	// Switch to default board
 	k.CurrentBoard = "default"
-	
+
 	// Load default board if not already loaded
 	globalMutex.Lock()
 	if globalBoards["default"] == nil {
@@ -573,28 +574,28 @@ func (k *SimpleKanbanModal) ArchiveBoard(data interface{}) {
 	}
 	defaultBoard := globalBoards["default"]
 	globalMutex.Unlock()
-	
+
 	if defaultBoard != nil {
 		k.Columns = make([]KanbanColumn, len(defaultBoard.Columns))
 		copy(k.Columns, defaultBoard.Columns)
 		k.Cards = make([]KanbanCard, len(defaultBoard.Cards))
 		copy(k.Cards, defaultBoard.Cards)
 	}
-	
+
 	// Update boards list
 	k.BoardsList = getAvailableBoards()
-	
+
 	fmt.Printf("✅ Board '%s' archived successfully to %s\n", boardToArchive, destPath)
-	
+
 	// Broadcast the change to all connected clients
 	broadcastUpdate()
-	
+
 	k.Commit()
 }
 
 func (k *SimpleKanbanModal) ReorderColumns(data interface{}) {
 	fmt.Println("📋 ReorderColumns event received")
-	
+
 	// Parse the reorder data
 	var reorderData map[string]interface{}
 	if jsonData, ok := data.(string); ok {
@@ -602,53 +603,53 @@ func (k *SimpleKanbanModal) ReorderColumns(data interface{}) {
 			fmt.Printf("Error parsing reorder data: %v\n", err)
 			return
 		}
-		
+
 		sourceIndex := int(reorderData["sourceIndex"].(float64))
 		targetIndex := int(reorderData["targetIndex"].(float64))
-		
+
 		fmt.Printf("📋 Moving column from index %d to %d\n", sourceIndex, targetIndex)
-		
+
 		// Validate indices
 		if sourceIndex < 0 || sourceIndex >= len(k.Columns) ||
-		   targetIndex < 0 || targetIndex >= len(k.Columns) {
-			fmt.Printf("Invalid indices: source=%d, target=%d, columns=%d\n", 
+			targetIndex < 0 || targetIndex >= len(k.Columns) {
+			fmt.Printf("Invalid indices: source=%d, target=%d, columns=%d\n",
 				sourceIndex, targetIndex, len(k.Columns))
 			return
 		}
-		
+
 		// Create a copy of columns to reorder
 		updatedColumns := make([]KanbanColumn, len(k.Columns))
 		copy(updatedColumns, k.Columns)
-		
+
 		// Get the column being moved
 		movedColumn := updatedColumns[sourceIndex]
-		
+
 		// Remove column from source position
 		updatedColumns = append(updatedColumns[:sourceIndex], updatedColumns[sourceIndex+1:]...)
-		
+
 		// Insert column at target position
 		if targetIndex >= len(updatedColumns) {
 			// Append at the end
 			updatedColumns = append(updatedColumns, movedColumn)
 		} else {
 			// Insert at target position
-			updatedColumns = append(updatedColumns[:targetIndex], 
+			updatedColumns = append(updatedColumns[:targetIndex],
 				append([]KanbanColumn{movedColumn}, updatedColumns[targetIndex:]...)...)
 		}
-		
+
 		// Update the Order field for all columns
 		for i := range updatedColumns {
 			updatedColumns[i].Order = i
 		}
-		
+
 		// Update the global state
 		k.updateGlobalState(updatedColumns, k.Cards)
-		
+
 		fmt.Printf("✅ Column order updated successfully\n")
 	}
-	
+
 	k.Commit()
-	
+
 	// Re-initialize drag & drop after a delay to ensure DOM is updated
 	k.ComponentDriver.EvalScript(`
 		setTimeout(function() {
@@ -669,7 +670,7 @@ func (k *SimpleKanbanModal) RemoveAttachment(data interface{}) {
 	if id, ok := data.(string); ok {
 		attachmentID = id
 	}
-	
+
 	// Find the attachment to remove and delete its file
 	var filenameToDelete string
 	newAttachments := []Attachment{}
@@ -680,7 +681,7 @@ func (k *SimpleKanbanModal) RemoveAttachment(data interface{}) {
 			filenameToDelete = att.Name
 		}
 	}
-	
+
 	// Delete the physical file if found
 	if filenameToDelete != "" && k.FormCardID != "" {
 		filePath := filepath.Join("attachments", k.CurrentBoard, k.FormCardID, filenameToDelete)
@@ -690,9 +691,9 @@ func (k *SimpleKanbanModal) RemoveAttachment(data interface{}) {
 			fmt.Printf("🗑️ Deleted attachment file: %s\n", filePath)
 		}
 	}
-	
+
 	k.FormCardAttachments = newAttachments
-	
+
 	// Also update the card in the Cards array
 	for i := range k.Cards {
 		if k.Cards[i].ID == k.FormCardID {
@@ -700,7 +701,7 @@ func (k *SimpleKanbanModal) RemoveAttachment(data interface{}) {
 			break
 		}
 	}
-	
+
 	k.Commit()
 }
 
@@ -709,10 +710,10 @@ func (k *SimpleKanbanModal) RefreshAttachments(data interface{}) {
 	var refreshData map[string]interface{}
 	if jsonData, ok := data.(string); ok {
 		json.Unmarshal([]byte(jsonData), &refreshData)
-		
+
 		cardID := refreshData["cardID"].(string)
 		files := refreshData["files"].([]interface{})
-		
+
 		// Update attachments for the current card being edited
 		if k.FormCardID == cardID {
 			// Convert files to Attachment structs
@@ -723,11 +724,11 @@ func (k *SimpleKanbanModal) RefreshAttachments(data interface{}) {
 				if name, ok := fileMap["name"].(string); ok {
 					originalName = name
 				}
-				
+
 				// Build the full filename with attachment ID prefix
 				attachmentID := fileMap["id"].(string)
 				fullFilename := attachmentID + "_" + originalName
-				
+
 				attachment := Attachment{
 					ID:          attachmentID,
 					Name:        fullFilename, // Store full filename for download
@@ -736,7 +737,7 @@ func (k *SimpleKanbanModal) RefreshAttachments(data interface{}) {
 				}
 				k.FormCardAttachments = append(k.FormCardAttachments, attachment)
 			}
-			
+
 			// Also update the card in the Cards array
 			for i := range k.Cards {
 				if k.Cards[i].ID == cardID {
