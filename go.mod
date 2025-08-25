@@ -1,6 +1,6 @@
 module go-kanban
 
-go 1.25.0
+go 1.23.0
 
 require (
 	github.com/arturoeanton/go-echo-live-view v0.0.0-20250823001352-e27ecd7afb75
